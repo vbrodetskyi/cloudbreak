@@ -80,7 +80,6 @@ public class ClusterUpgradeImageFilter {
                 .filter(validateCmAndStackVersion(currentImage, lockComponents, activatedParcels))
                 .filter(validateCloudPlatform(cloudPlatform))
                 .filter(validateOsVersion(currentImage))
-                .filter(validateSaltVersion(currentImage))
                 .collect(Collectors.toList());
 
         return new ImageFilterResult(new Images(null, images, null), getReason(images));
@@ -193,15 +192,6 @@ public class ClusterUpgradeImageFilter {
 
     private boolean isOsVersionsMatch(Image currentImage, Image newImage) {
         return newImage.getOs().equalsIgnoreCase(currentImage.getOs()) && newImage.getOsType().equalsIgnoreCase(currentImage.getOsType());
-    }
-
-    private Predicate<Image> validateSaltVersion(Image currentImage) {
-        return image -> {
-            boolean result = upgradePermissionProvider.permitSaltUpgrade(currentImage.getPackageVersions().get(SALT_PACKAGE_KEY),
-                    image.getPackageVersions().get(SALT_PACKAGE_KEY));
-            setReason(result, "There are no images with compatible Salt version.");
-            return result;
-        };
     }
 
     private String getReason(List<Image> images) {

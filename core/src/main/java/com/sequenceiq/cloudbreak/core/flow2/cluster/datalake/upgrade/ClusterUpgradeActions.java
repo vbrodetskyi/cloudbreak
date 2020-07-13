@@ -1,12 +1,16 @@
 package com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade;
 
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.CLUSTER_UPGRADE_FAIL_HANDLED_EVENT;
+import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.COMPONENT_UPDATE_FINISHED_EVENT;
 
 import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateContext;
@@ -25,6 +29,7 @@ import com.sequenceiq.cloudbreak.reactor.api.event.cluster.upgrade.ClusterUpgrad
 import com.sequenceiq.cloudbreak.reactor.api.event.cluster.upgrade.ClusterUpgradeSuccess;
 import com.sequenceiq.cloudbreak.service.image.StatedImage;
 import com.sequenceiq.cloudbreak.service.stack.StackService;
+import com.sequenceiq.cloudbreak.service.upgrade.ComponentUpdaterService;
 import com.sequenceiq.flow.core.Flow;
 import com.sequenceiq.flow.core.FlowEvent;
 import com.sequenceiq.flow.core.FlowParameters;
@@ -33,9 +38,7 @@ import com.sequenceiq.flow.core.FlowState;
 @Configuration
 public class ClusterUpgradeActions {
 
-    private static final String CURRENT_IMAGE = "CURRENT_IMAGE";
-
-    private static final String TARGET_IMAGE = "TARGET_IMAGE";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterUpgradeActions.class);
 
     @Inject
     private StackService stackService;
@@ -43,15 +46,31 @@ public class ClusterUpgradeActions {
     @Inject
     private ClusterUpgradeService clusterUpgradeService;
 
-    @Bean(name = "CLUSTER_MANAGER_UPGRADE_STATE")
-    public Action<?, ?> upgradeClusterManager() {
+    @Bean(name = "COMPONENTS_UPDATE_STATE")
+    public Action<?, ?> updateComponents() {
         return new AbstractClusterUpgradeAction<>(DatalakeClusterUpgradeTriggerEvent.class) {
 
+            @Inject
+            private ComponentUpdaterService componentUpdaterService;
+
             @Override
-            protected void prepareExecution(DatalakeClusterUpgradeTriggerEvent payload, Map<Object, Object> variables) {
-                super.prepareExecution(payload, variables);
-                variables.put(CURRENT_IMAGE, payload.getCurrentImage());
-                variables.put(TARGET_IMAGE, payload.getTargetImage());
+            protected void doExecute(ClusterUpgradeContext context, DatalakeClusterUpgradeTriggerEvent payload, Map<Object, Object> variables) throws Exception {
+                try {
+                    Pair<StatedImage, StatedImage> images = componentUpdaterService.updateComponents(payload.getImageId(), payload.getResourceId());
+                    variables.put(CURRENT_IMAGE, images.getLeft());
+                    variables.put(TARGET_IMAGE, images.getRight());
+                    sendEvent(context, new StackEvent(COMPONENT_UPDATE_FINISHED_EVENT.event(), payload.getResourceId()));
+                } catch (Exception e) {
+                    LOGGER.error("Error during updating cluster components with image id: [{}]", payload.getImageId(), e);
+                    ClusterUpgradeFailedEvent upgradeFailedEvent =
+                            new ClusterUpgradeFailedEvent(payload.getResourceId(), e, DetailedStackStatus.CLUSTER_MANAGER_UPGRADE_FAILED);
+                    sendEvent(context, upgradeFailedEvent);
+                }
+            }
+
+            @Override
+            protected Object getFailurePayload(DatalakeClusterUpgradeTriggerEvent payload, Optional<ClusterUpgradeContext> flowContext, Exception ex) {
+                return ClusterUpgradeFailedEvent.from(payload, ex, DetailedStackStatus.CLUSTER_MANAGER_UPGRADE_FAILED);
             }
 
             @Override
@@ -60,10 +79,25 @@ public class ClusterUpgradeActions {
                 return ClusterUpgradeContext.from(flowParameters, payload);
             }
 
+        };
+    }
+
+    @Bean(name = "CLUSTER_MANAGER_UPGRADE_STATE")
+    public Action<?, ?> upgradeClusterManager() {
+        return new AbstractClusterUpgradeAction<>(StackEvent.class) {
+
             @Override
-            protected void doExecute(ClusterUpgradeContext context, DatalakeClusterUpgradeTriggerEvent payload, Map<Object, Object> variables) {
+            protected ClusterUpgradeContext createFlowContext(FlowParameters flowParameters, StateContext<FlowState, FlowEvent> stateContext,
+                    StackEvent payload) {
+                return ClusterUpgradeContext.from(flowParameters, payload);
+            }
+
+            @Override
+            protected void doExecute(ClusterUpgradeContext context, StackEvent payload, Map<Object, Object> variables) {
+                StatedImage currentImage = getCurrentImage(variables);
+                StatedImage targetImage = getTargetImage(variables);
                 boolean clusterManagerUpdateNeeded =
-                        clusterUpgradeService.upgradeClusterManager(context.getStackId(), payload.getCurrentImage(), payload.getTargetImage());
+                        clusterUpgradeService.upgradeClusterManager(context.getStackId(), currentImage, targetImage);
                 Selectable event;
                 if (clusterManagerUpdateNeeded) {
                     event = new ClusterManagerUpgradeRequest(context.getStackId());
@@ -74,7 +108,7 @@ public class ClusterUpgradeActions {
             }
 
             @Override
-            protected Object getFailurePayload(DatalakeClusterUpgradeTriggerEvent payload, Optional<ClusterUpgradeContext> flowContext, Exception ex) {
+            protected Object getFailurePayload(StackEvent payload, Optional<ClusterUpgradeContext> flowContext, Exception ex) {
                 return ClusterUpgradeFailedEvent.from(payload, ex, DetailedStackStatus.CLUSTER_MANAGER_UPGRADE_FAILED);
             }
         };
@@ -92,8 +126,8 @@ public class ClusterUpgradeActions {
 
             @Override
             protected void doExecute(ClusterUpgradeContext context, ClusterManagerUpgradeSuccess payload, Map<Object, Object> variables) {
-                StatedImage currentImage = (StatedImage) variables.get(CURRENT_IMAGE);
-                StatedImage targetImage = (StatedImage) variables.get(TARGET_IMAGE);
+                StatedImage currentImage = getCurrentImage(variables);
+                StatedImage targetImage = getTargetImage(variables);
                 boolean clusterRuntimeUpgradeNeeded = clusterUpgradeService.upgradeCluster(context.getStackId(), currentImage, targetImage);
                 Selectable event;
                 if (clusterRuntimeUpgradeNeeded) {
@@ -123,8 +157,8 @@ public class ClusterUpgradeActions {
 
             @Override
             protected void doExecute(ClusterUpgradeContext context, ClusterUpgradeSuccess payload, Map<Object, Object> variables) {
-                StatedImage currentImage = (StatedImage) variables.get(CURRENT_IMAGE);
-                StatedImage targetImage = (StatedImage) variables.get(TARGET_IMAGE);
+                StatedImage currentImage = getCurrentImage(variables);
+                StatedImage targetImage = getTargetImage(variables);
                 clusterUpgradeService.clusterUpgradeFinished(context.getStackId(), currentImage, targetImage);
                 sendEvent(context);
             }

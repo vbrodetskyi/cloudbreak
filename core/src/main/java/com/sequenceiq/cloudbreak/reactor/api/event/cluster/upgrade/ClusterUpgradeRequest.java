@@ -7,9 +7,4 @@ public class ClusterUpgradeRequest extends StackEvent {
     public ClusterUpgradeRequest(Long stackId) {
         super(stackId);
     }
-
-//    @Override
-//    public String selector() {
-//        return CLUSTER_UPGRADE_EVENT.event();
-//    }
 }

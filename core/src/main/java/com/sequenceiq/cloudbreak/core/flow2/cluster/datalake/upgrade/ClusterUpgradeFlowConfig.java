@@ -6,10 +6,12 @@ import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.Clus
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.CLUSTER_UPGRADE_FAILED_EVENT;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.CLUSTER_UPGRADE_FAIL_HANDLED_EVENT;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.CLUSTER_UPGRADE_FINALIZED_EVENT;
+import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeEvent.COMPONENT_UPDATE_FINISHED_EVENT;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.CLUSTER_MANAGER_UPGRADE_STATE;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.CLUSTER_UPGRADE_FAILED_STATE;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.CLUSTER_UPGRADE_FINISHED_STATE;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.CLUSTER_UPGRADE_STATE;
+import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.COMPONENTS_UPDATE_STATE;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.FINAL_STATE;
 import static com.sequenceiq.cloudbreak.core.flow2.cluster.datalake.upgrade.ClusterUpgradeState.INIT_STATE;
 
@@ -29,7 +31,10 @@ public class ClusterUpgradeFlowConfig extends AbstractFlowConfiguration<ClusterU
             new Builder<ClusterUpgradeState, ClusterUpgradeEvent>()
                     .defaultFailureEvent(CLUSTER_UPGRADE_FAILED_EVENT)
 
-                    .from(INIT_STATE).to(CLUSTER_MANAGER_UPGRADE_STATE).event(CLUSTER_MANAGER_UPGRADE_EVENT)
+                    .from(INIT_STATE).to(COMPONENTS_UPDATE_STATE).event(CLUSTER_MANAGER_UPGRADE_EVENT)
+                    .defaultFailureEvent()
+
+                    .from(COMPONENTS_UPDATE_STATE).to(CLUSTER_MANAGER_UPGRADE_STATE).event(COMPONENT_UPDATE_FINISHED_EVENT)
                     .defaultFailureEvent()
 
                     .from(INIT_STATE).to(CLUSTER_UPGRADE_STATE).event(CLUSTER_MANAGER_UPGRADE_FINISHED_EVENT)

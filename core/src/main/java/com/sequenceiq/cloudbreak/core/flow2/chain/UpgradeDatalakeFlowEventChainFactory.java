@@ -14,8 +14,10 @@ import org.springframework.stereotype.Component;
 
 import com.sequenceiq.cloudbreak.api.endpoint.v4.common.DetailedStackStatus;
 import com.sequenceiq.cloudbreak.common.event.Selectable;
+import com.sequenceiq.cloudbreak.core.flow2.cluster.salt.update.SaltUpdateEvent;
 import com.sequenceiq.cloudbreak.core.flow2.event.DatalakeClusterUpgradeTriggerEvent;
 import com.sequenceiq.cloudbreak.domain.stack.StackStatus;
+import com.sequenceiq.cloudbreak.reactor.api.event.StackEvent;
 import com.sequenceiq.cloudbreak.service.stackstatus.StackStatusService;
 import com.sequenceiq.flow.core.chain.FlowEventChainFactory;
 
@@ -33,6 +35,7 @@ public class UpgradeDatalakeFlowEventChainFactory implements FlowEventChainFacto
     @Override
     public Queue<Selectable> createFlowTriggerEventQueue(DatalakeClusterUpgradeTriggerEvent event) {
         Queue<Selectable> chain = new ConcurrentLinkedQueue<>();
+        chain.add(new StackEvent(SaltUpdateEvent.SALT_UPDATE_EVENT.event(), event.getResourceId(), event.accepted()));
 
         Optional<StackStatus> stackStatusOpt = stackStatusService.findFirstByStackIdOrderByCreatedDesc(event.getResourceId());
         StackStatus unknownStackStatus = new StackStatus();
@@ -40,10 +43,10 @@ public class UpgradeDatalakeFlowEventChainFactory implements FlowEventChainFacto
         DetailedStackStatus detailedStackStatus = stackStatusOpt.orElse(unknownStackStatus).getDetailedStackStatus();
         if (DetailedStackStatus.CLUSTER_UPGRADE_FAILED.equals(detailedStackStatus)) {
             chain.add(new DatalakeClusterUpgradeTriggerEvent(
-                    CLUSTER_MANAGER_UPGRADE_FINISHED_EVENT.event(), event.getResourceId(), event.accepted(), event.getCurrentImage(), event.getTargetImage()));
+                    CLUSTER_MANAGER_UPGRADE_FINISHED_EVENT.event(), event.getResourceId(), event.accepted(), event.getImageId()));
         } else {
             chain.add(new DatalakeClusterUpgradeTriggerEvent(
-                    CLUSTER_MANAGER_UPGRADE_EVENT.event(), event.getResourceId(), event.accepted(), event.getCurrentImage(), event.getTargetImage()));
+                    CLUSTER_MANAGER_UPGRADE_EVENT.event(), event.getResourceId(), event.accepted(), event.getImageId()));
         }
 
         return chain;
