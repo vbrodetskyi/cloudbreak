@@ -1,0 +1,76 @@
+package com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.instancegroup.network;
+
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.sequenceiq.cloudbreak.common.mappable.CloudPlatform;
+import com.sequenceiq.cloudbreak.common.mappable.MappableBase;
+import com.sequenceiq.common.model.JsonEntity;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(Include.NON_NULL)
+public class OpenStackInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
+
+    @ApiModelProperty
+    private String routerId;
+
+    @ApiModelProperty
+    private String subnetId;
+
+    @ApiModelProperty
+    private String publicNetId;
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
+    }
+
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
+    }
+
+    public String getPublicNetId() {
+        return publicNetId;
+    }
+
+    public void setPublicNetId(String publicNetId) {
+        this.publicNetId = publicNetId;
+    }
+
+    @Override
+    public Map<String, Object> asMap() {
+        Map<String, Object> map = super.asMap();
+        putIfValueNotNull(map, "routerId", routerId);
+        putIfValueNotNull(map, "subnetId", subnetId);
+        putIfValueNotNull(map, "publicNetId", publicNetId);
+        return map;
+    }
+
+    @Override
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    public CloudPlatform getCloudPlatform() {
+        return CloudPlatform.OPENSTACK;
+    }
+
+    @Override
+    public void parse(Map<String, Object> parameters) {
+        routerId = getParameterOrNull(parameters, "routerId");
+        subnetId = getParameterOrNull(parameters, "subnetId");
+        publicNetId = getParameterOrNull(parameters, "publicNetId");
+    }
+}

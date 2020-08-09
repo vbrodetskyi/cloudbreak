@@ -1,4 +1,4 @@
-package com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.network;
+package com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.instancegroup.network;
 
 import java.util.Map;
 
@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.sequenceiq.common.model.JsonEntity;
 import com.sequenceiq.cloudbreak.common.mappable.CloudPlatform;
 import com.sequenceiq.cloudbreak.common.mappable.MappableBase;
+import com.sequenceiq.common.model.JsonEntity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,35 +16,35 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class OpenStackNetworkV4Parameters extends MappableBase implements JsonEntity {
+public class MockInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @ApiModelProperty
-    private String networkId;
+    private String internetGatewayId;
 
     @ApiModelProperty
-    private String networkingOption;
+    private String subnetId;
 
-    public String getNetworkId() {
-        return networkId;
+    public String getInternetGatewayId() {
+        return internetGatewayId;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
+    public void setInternetGatewayId(String internetGatewayId) {
+        this.internetGatewayId = internetGatewayId;
     }
 
-    public String getNetworkingOption() {
-        return networkingOption;
+    public String getSubnetId() {
+        return subnetId;
     }
 
-    public void setNetworkingOption(String networkingOption) {
-        this.networkingOption = networkingOption;
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
     }
 
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
-        putIfValueNotNull(map, "networkId", networkId);
-        putIfValueNotNull(map, "networkingOption", networkingOption);
+        putIfValueNotNull(map, "internetGatewayId", internetGatewayId);
+        putIfValueNotNull(map, "subnetId", subnetId);
         return map;
     }
 
@@ -52,12 +52,12 @@ public class OpenStackNetworkV4Parameters extends MappableBase implements JsonEn
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     public CloudPlatform getCloudPlatform() {
-        return CloudPlatform.OPENSTACK;
+        return CloudPlatform.MOCK;
     }
 
     @Override
     public void parse(Map<String, Object> parameters) {
-        networkId = getParameterOrNull(parameters, "networkId");
-        networkingOption = getParameterOrNull(parameters, "networkingOption");
+        internetGatewayId = getParameterOrNull(parameters, "internetGatewayId");
+        subnetId = getParameterOrNull(parameters, "subnetId");
     }
 }
