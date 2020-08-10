@@ -171,7 +171,7 @@ public class StackDecorator {
     private void preparePlacement(Stack subject, StackV4Request request, DetailedEnvironmentResponse environment) {
         if (request.getPlacement() == null && !CloudPlatform.YARN.name().equals(environment.getCloudPlatform())) {
             subject.setRegion(getRegionFromEnv(environment));
-            subject.setAvailabilityZone(getAvailabilityZoneFromEnv(environment));
+            //subject.setAvailabilityZone(getAvailabilityZoneFromEnv(environment));
         }
     }
 
@@ -233,7 +233,7 @@ public class StackDecorator {
                 if (template.getId() == null) {
                     template.setCloudPlatform(credential.cloudPlatform());
                     PlacementSettingsV4Request placement = request.getPlacement();
-                    String availabilityZone = placement != null ? placement.getAvailabilityZone() : subject.getAvailabilityZone();
+                    String availabilityZone = placement != null ? placement.getAvailabilityZone() : instanceGroup.getAvailabilityZone();
                     String region = placement != null ? placement.getRegion() : subject.getRegion();
 
                     CdpResourceType cdpResourceType = cdpResourceTypeProvider.fromStackType(request.getType());

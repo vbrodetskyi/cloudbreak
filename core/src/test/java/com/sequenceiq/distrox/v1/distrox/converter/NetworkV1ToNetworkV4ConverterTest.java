@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Sets;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.network.NetworkV4Request;
-import com.sequenceiq.distrox.api.v1.distrox.model.network.AwsNetworkV1Parameters;
-import com.sequenceiq.distrox.api.v1.distrox.model.network.AzureNetworkV1Parameters;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.aws.AwsNetworkV1Parameters;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.azure.AzureNetworkV1Parameters;
 import com.sequenceiq.distrox.api.v1.distrox.model.network.NetworkV1Request;
 import com.sequenceiq.environment.api.v1.environment.model.EnvironmentNetworkAwsParams;
 import com.sequenceiq.environment.api.v1.environment.model.EnvironmentNetworkAzureParams;

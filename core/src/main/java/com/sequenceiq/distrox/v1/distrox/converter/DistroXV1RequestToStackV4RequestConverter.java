@@ -89,7 +89,7 @@ public class DistroXV1RequestToStackV4RequestConverter {
         request.setImage(getIfNotNull(source.getImage(), imageConverter::convert));
         request.setCluster(getIfNotNull(source, environment, clusterConverter::convert));
         request.setInstanceGroups(getIfNotNull(source.getInstanceGroups(), igs -> instanceGroupConverter.convertTo(igs, environment)));
-        request.setNetwork(getNetwork(source.getNetwork(), environment));
+        request.setNetwork(getNetwork(source.getNetwork(), environment, request.getInstanceGroups()));
         request.setAws(getIfNotNull(source.getAws(), stackParameterConverter::convert));
         request.setAzure(getIfNotNull(source.getAzure(), stackParameterConverter::convert));
         request.setYarn(getYarnProperties(source, environment));

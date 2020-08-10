@@ -16,33 +16,10 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class AzureInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
-
-    @ApiModelProperty
-    private Boolean noPublicIp;
-
-    @ApiModelProperty
-    private String resourceGroupName;
+public class AzureNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @ApiModelProperty
     private String subnetId;
-
-    public Boolean getNoPublicIp() {
-        return noPublicIp;
-    }
-
-    public void setNoPublicIp(Boolean noPublicIp) {
-        this.noPublicIp = noPublicIp;
-    }
-
-    public String getResourceGroupName() {
-        return resourceGroupName;
-    }
-
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
-    }
-
     public String getSubnetId() {
         return subnetId;
     }
@@ -54,8 +31,6 @@ public class AzureInstanceGroupNetworkV4InstanceGroupParameters extends Mappable
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
-        putIfValueNotNull(map, "noPublicIp", noPublicIp);
-        putIfValueNotNull(map, "resourceGroupName", resourceGroupName);
         putIfValueNotNull(map, "subnetId", subnetId);
         return map;
     }
@@ -69,8 +44,6 @@ public class AzureInstanceGroupNetworkV4InstanceGroupParameters extends Mappable
 
     @Override
     public void parse(Map<String, Object> parameters) {
-        noPublicIp = getBoolean(parameters, "noPublicIp");
-        resourceGroupName = getParameterOrNull(parameters, "resourceGroupName");
         subnetId = getParameterOrNull(parameters, "subnetId");
     }
 }

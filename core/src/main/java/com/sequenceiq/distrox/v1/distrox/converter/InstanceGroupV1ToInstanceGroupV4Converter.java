@@ -12,16 +12,20 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.instancegroup.InstanceGroupV4Request;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.instancegroup.securitygroup.SecurityGroupV4Request;
+import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.network.NetworkV4Request;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.util.SecurityRuleUtil;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.util.requests.SecurityRuleV4Request;
 import com.sequenceiq.cloudbreak.util.CidrUtil;
 import com.sequenceiq.common.api.type.InstanceGroupType;
 import com.sequenceiq.distrox.api.v1.distrox.model.instancegroup.InstanceGroupV1Request;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.InstanceGroupNetworkV1Request;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.NetworkV1Request;
 import com.sequenceiq.environment.api.v1.environment.model.response.DetailedEnvironmentResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.SecurityAccessResponse;
 
@@ -33,6 +37,9 @@ public class InstanceGroupV1ToInstanceGroupV4Converter {
 
     @Inject
     private InstanceGroupParameterConverter instanceGroupParameterConverter;
+
+    @Inject
+    private InstanceGroupNetworkV1ToNetworkV4Converter networkConverter;
 
     public List<InstanceGroupV4Request> convertTo(Set<InstanceGroupV1Request> instanceGroups, DetailedEnvironmentResponse environment) {
         return instanceGroups.stream().map(ig -> convert(ig, environment)).collect(Collectors.toList());
@@ -94,6 +101,12 @@ public class InstanceGroupV1ToInstanceGroupV4Converter {
             }
         }
         return null;
+    }
+
+    private NetworkV4Request getNetwork(InstanceGroupNetworkV1Request networkRequest, DetailedEnvironmentResponse environment) {
+        NetworkV4Request network = getIfNotNull(new ImmutablePair<>(networkRequest, environment), networkConverter::convertToNetworkV4Request);
+        validateSubnetIds(network, environment);
+        return network;
     }
 
     private List<String> getPorts(InstanceGroupType type) {

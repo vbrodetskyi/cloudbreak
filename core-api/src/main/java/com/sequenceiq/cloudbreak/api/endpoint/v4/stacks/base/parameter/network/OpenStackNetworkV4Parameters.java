@@ -24,6 +24,12 @@ public class OpenStackNetworkV4Parameters extends MappableBase implements JsonEn
     @ApiModelProperty
     private String networkingOption;
 
+    @ApiModelProperty
+    private String routerId;
+
+    @ApiModelProperty
+    private String publicNetId;
+
     public String getNetworkId() {
         return networkId;
     }
@@ -40,11 +46,29 @@ public class OpenStackNetworkV4Parameters extends MappableBase implements JsonEn
         this.networkingOption = networkingOption;
     }
 
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
+    }
+
+    public String getPublicNetId() {
+        return publicNetId;
+    }
+
+    public void setPublicNetId(String publicNetId) {
+        this.publicNetId = publicNetId;
+    }
+
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
         putIfValueNotNull(map, "networkId", networkId);
         putIfValueNotNull(map, "networkingOption", networkingOption);
+        putIfValueNotNull(map, "routerId", routerId);
+        putIfValueNotNull(map, "publicNetId", publicNetId);
         return map;
     }
 
@@ -59,5 +83,7 @@ public class OpenStackNetworkV4Parameters extends MappableBase implements JsonEn
     public void parse(Map<String, Object> parameters) {
         networkId = getParameterOrNull(parameters, "networkId");
         networkingOption = getParameterOrNull(parameters, "networkingOption");
+        routerId = getParameterOrNull(parameters, "routerId");
+        publicNetId = getParameterOrNull(parameters, "publicNetId");
     }
 }

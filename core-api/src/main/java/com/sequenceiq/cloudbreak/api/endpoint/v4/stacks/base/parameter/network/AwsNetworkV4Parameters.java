@@ -21,6 +21,9 @@ public class AwsNetworkV4Parameters extends MappableBase implements JsonEntity {
     @ApiModelProperty
     private String vpcId;
 
+    @ApiModelProperty
+    private String internetGatewayId;
+
     public String getVpcId() {
         return vpcId;
     }
@@ -29,10 +32,20 @@ public class AwsNetworkV4Parameters extends MappableBase implements JsonEntity {
         this.vpcId = vpcId;
     }
 
+
+    public String getInternetGatewayId() {
+        return internetGatewayId;
+    }
+
+    public void setInternetGatewayId(String internetGatewayId) {
+        this.internetGatewayId = internetGatewayId;
+    }
+
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
         putIfValueNotNull(map, "vpcId", vpcId);
+        putIfValueNotNull(map, "internetGatewayId", internetGatewayId);
         return map;
     }
 
@@ -45,6 +58,7 @@ public class AwsNetworkV4Parameters extends MappableBase implements JsonEntity {
 
     @Override
     public void parse(Map<String, Object> parameters) {
+        internetGatewayId = getParameterOrNull(parameters, "internetGatewayId");
         vpcId = getParameterOrNull(parameters, "vpcId");
     }
 }

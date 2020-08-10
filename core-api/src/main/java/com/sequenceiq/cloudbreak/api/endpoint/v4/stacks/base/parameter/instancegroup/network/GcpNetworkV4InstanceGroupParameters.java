@@ -16,21 +16,10 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class MockInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
-
-    @ApiModelProperty
-    private String internetGatewayId;
+public class GcpNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @ApiModelProperty
     private String subnetId;
-
-    public String getInternetGatewayId() {
-        return internetGatewayId;
-    }
-
-    public void setInternetGatewayId(String internetGatewayId) {
-        this.internetGatewayId = internetGatewayId;
-    }
 
     public String getSubnetId() {
         return subnetId;
@@ -43,7 +32,6 @@ public class MockInstanceGroupNetworkV4InstanceGroupParameters extends MappableB
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
-        putIfValueNotNull(map, "internetGatewayId", internetGatewayId);
         putIfValueNotNull(map, "subnetId", subnetId);
         return map;
     }
@@ -52,12 +40,11 @@ public class MockInstanceGroupNetworkV4InstanceGroupParameters extends MappableB
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     public CloudPlatform getCloudPlatform() {
-        return CloudPlatform.MOCK;
+        return CloudPlatform.GCP;
     }
 
     @Override
     public void parse(Map<String, Object> parameters) {
-        internetGatewayId = getParameterOrNull(parameters, "internetGatewayId");
         subnetId = getParameterOrNull(parameters, "subnetId");
     }
 }

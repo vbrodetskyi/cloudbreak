@@ -16,24 +16,10 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class OpenStackInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
-
-    @ApiModelProperty
-    private String routerId;
+public class AwsNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @ApiModelProperty
     private String subnetId;
-
-    @ApiModelProperty
-    private String publicNetId;
-
-    public String getRouterId() {
-        return routerId;
-    }
-
-    public void setRouterId(String routerId) {
-        this.routerId = routerId;
-    }
 
     public String getSubnetId() {
         return subnetId;
@@ -43,20 +29,10 @@ public class OpenStackInstanceGroupNetworkV4InstanceGroupParameters extends Mapp
         this.subnetId = subnetId;
     }
 
-    public String getPublicNetId() {
-        return publicNetId;
-    }
-
-    public void setPublicNetId(String publicNetId) {
-        this.publicNetId = publicNetId;
-    }
-
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
-        putIfValueNotNull(map, "routerId", routerId);
         putIfValueNotNull(map, "subnetId", subnetId);
-        putIfValueNotNull(map, "publicNetId", publicNetId);
         return map;
     }
 
@@ -64,13 +40,11 @@ public class OpenStackInstanceGroupNetworkV4InstanceGroupParameters extends Mapp
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     public CloudPlatform getCloudPlatform() {
-        return CloudPlatform.OPENSTACK;
+        return CloudPlatform.AWS;
     }
 
     @Override
     public void parse(Map<String, Object> parameters) {
-        routerId = getParameterOrNull(parameters, "routerId");
         subnetId = getParameterOrNull(parameters, "subnetId");
-        publicNetId = getParameterOrNull(parameters, "publicNetId");
     }
 }

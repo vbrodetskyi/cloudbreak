@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class YarnInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
+public class YarnNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @Override
     @JsonIgnore

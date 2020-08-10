@@ -1,4 +1,4 @@
-package com.sequenceiq.distrox.api.v1.distrox.model.network;
+package com.sequenceiq.distrox.api.v1.distrox.model.network.mock;
 
 import java.io.Serializable;
 
@@ -15,9 +15,11 @@ import io.swagger.annotations.ApiModelProperty;
 public class MockNetworkV1Parameters implements Serializable {
 
     @ApiModelProperty
+    @Deprecated
     private String subnetId;
 
     @ApiModelProperty
+    @Deprecated
     private String internetGatewayId;
 
     @ApiModelProperty

@@ -15,9 +15,9 @@ import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.network.A
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.network.AzureNetworkV4Parameters;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.base.parameter.network.MockNetworkV4Parameters;
 import com.sequenceiq.cloudbreak.api.endpoint.v4.stacks.request.network.NetworkV4Request;
-import com.sequenceiq.distrox.api.v1.distrox.model.network.AwsNetworkV1Parameters;
-import com.sequenceiq.distrox.api.v1.distrox.model.network.AzureNetworkV1Parameters;
-import com.sequenceiq.distrox.api.v1.distrox.model.network.MockNetworkV1Parameters;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.aws.AwsNetworkV1Parameters;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.azure.AzureNetworkV1Parameters;
+import com.sequenceiq.distrox.api.v1.distrox.model.network.mock.MockNetworkV1Parameters;
 import com.sequenceiq.distrox.api.v1.distrox.model.network.NetworkV1Request;
 import com.sequenceiq.environment.api.v1.environment.model.response.DetailedEnvironmentResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.EnvironmentNetworkResponse;

@@ -16,16 +16,10 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class GcpInstanceGroupNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
+public class OpenStackNetworkV4InstanceGroupParameters extends MappableBase implements JsonEntity {
 
     @ApiModelProperty
     private String subnetId;
-
-    @ApiModelProperty
-    private Boolean noPublicIp;
-
-    @ApiModelProperty
-    private Boolean noFirewallRules;
 
     public String getSubnetId() {
         return subnetId;
@@ -35,28 +29,10 @@ public class GcpInstanceGroupNetworkV4InstanceGroupParameters extends MappableBa
         this.subnetId = subnetId;
     }
 
-    public Boolean getNoPublicIp() {
-        return noPublicIp;
-    }
-
-    public void setNoPublicIp(Boolean noPublicIp) {
-        this.noPublicIp = noPublicIp;
-    }
-
-    public Boolean getNoFirewallRules() {
-        return noFirewallRules;
-    }
-
-    public void setNoFirewallRules(Boolean noFirewallRules) {
-        this.noFirewallRules = noFirewallRules;
-    }
-
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
         putIfValueNotNull(map, "subnetId", subnetId);
-        putIfValueNotNull(map, "noFirewallRules", noFirewallRules);
-        putIfValueNotNull(map, "noPublicIp", noPublicIp);
         return map;
     }
 
@@ -64,13 +40,11 @@ public class GcpInstanceGroupNetworkV4InstanceGroupParameters extends MappableBa
     @JsonIgnore
     @ApiModelProperty(hidden = true)
     public CloudPlatform getCloudPlatform() {
-        return CloudPlatform.GCP;
+        return CloudPlatform.OPENSTACK;
     }
 
     @Override
     public void parse(Map<String, Object> parameters) {
         subnetId = getParameterOrNull(parameters, "subnetId");
-        noFirewallRules = getBoolean(parameters, "noFirewallRules");
-        noPublicIp = getBoolean(parameters, "noPublicIp");
     }
 }

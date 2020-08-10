@@ -21,6 +21,12 @@ public class AzureNetworkV4Parameters extends MappableBase implements JsonEntity
     @ApiModelProperty
     private String networkId;
 
+    @ApiModelProperty
+    private Boolean noPublicIp;
+
+    @ApiModelProperty
+    private String resourceGroupName;
+
     public String getNetworkId() {
         return networkId;
     }
@@ -29,9 +35,27 @@ public class AzureNetworkV4Parameters extends MappableBase implements JsonEntity
         this.networkId = networkId;
     }
 
+    public Boolean getNoPublicIp() {
+        return noPublicIp;
+    }
+
+    public void setNoPublicIp(Boolean noPublicIp) {
+        this.noPublicIp = noPublicIp;
+    }
+
+    public String getResourceGroupName() {
+        return resourceGroupName;
+    }
+
+    public void setResourceGroupName(String resourceGroupName) {
+        this.resourceGroupName = resourceGroupName;
+    }
+
     @Override
     public Map<String, Object> asMap() {
         Map<String, Object> map = super.asMap();
+        putIfValueNotNull(map, "noPublicIp", noPublicIp);
+        putIfValueNotNull(map, "resourceGroupName", resourceGroupName);
         putIfValueNotNull(map, "networkId", networkId);
         return map;
     }
@@ -45,6 +69,8 @@ public class AzureNetworkV4Parameters extends MappableBase implements JsonEntity
 
     @Override
     public void parse(Map<String, Object> parameters) {
+        noPublicIp = getBoolean(parameters, "noPublicIp");
+        resourceGroupName = getParameterOrNull(parameters, "resourceGroupName");
         networkId = getParameterOrNull(parameters, "networkId");
     }
 }
