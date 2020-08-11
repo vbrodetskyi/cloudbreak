@@ -13,8 +13,11 @@ import org.springframework.stereotype.Component;
 import com.sequenceiq.flow.api.FlowEndpoint;
 import com.sequenceiq.it.TestParameter;
 import com.sequenceiq.it.cloudbreak.CloudbreakClient;
+import com.sequenceiq.it.cloudbreak.FreeIpaClient;
 import com.sequenceiq.it.cloudbreak.SdxClient;
 import com.sequenceiq.it.cloudbreak.dto.CloudbreakTestDto;
+import com.sequenceiq.it.cloudbreak.dto.freeipa.FreeIpaDiagnosticsTestDto;
+import com.sequenceiq.it.cloudbreak.dto.sdx.SdxDiagnosticsTestDto;
 import com.sequenceiq.it.cloudbreak.dto.sdx.SdxInternalTestDto;
 import com.sequenceiq.it.cloudbreak.dto.sdx.SdxTestDto;
 import com.sequenceiq.it.cloudbreak.util.WaitResult;
@@ -42,18 +45,39 @@ public class FlowUtil {
     }
 
     public WaitResult waitBasedOnLastKnownFlow(SdxTestDto sdxTestDto, SdxClient sdxClient) {
-        FlowEndpoint flowEndpoint = sdxClient.getSdxClient().flowEndpoint();
-        return isFlowRunning(flowEndpoint, sdxTestDto.getLastKnownFlowChainId(), sdxTestDto.getLastKnownFlowId());
+        return waitBasedOnLastKnownFlow(sdxClient, sdxTestDto.getLastKnownFlowChainId(), sdxTestDto.getLastKnownFlowId());
     }
 
     public WaitResult waitBasedOnLastKnownFlow(SdxInternalTestDto sdxInternalTestDto, SdxClient sdxClient) {
-        FlowEndpoint flowEndpoint = sdxClient.getSdxClient().flowEndpoint();
-        return isFlowRunning(flowEndpoint, sdxInternalTestDto.getLastKnownFlowChainId(), sdxInternalTestDto.getLastKnownFlowId());
+        return waitBasedOnLastKnownFlow(sdxClient, sdxInternalTestDto.getLastKnownFlowChainId(), sdxInternalTestDto.getLastKnownFlowId());
     }
 
     public WaitResult waitBasedOnLastKnownFlow(CloudbreakTestDto distroXTestDto, CloudbreakClient cloudbreakClient) {
+        return waitBasedOnLastKnownFlow(cloudbreakClient, distroXTestDto.getLastKnownFlowChainId(), distroXTestDto.getLastKnownFlowId());
+    }
+
+    public WaitResult waitBasedOnLastKnownFlow(SdxDiagnosticsTestDto sdxDiagnosticsTestDto, SdxClient sdxClient) {
+        return waitBasedOnLastKnownFlow(sdxClient, sdxDiagnosticsTestDto.getLastKnownFlowChainId(), sdxDiagnosticsTestDto.getLastKnownFlowId());
+    }
+
+    public WaitResult waitBasedOnLastKnownFlow(FreeIpaDiagnosticsTestDto freeIpaDiagnosticsTestDto, FreeIpaClient freeIpaClient) {
+        return waitBasedOnLastKnownFlow(freeIpaClient,
+                freeIpaDiagnosticsTestDto.getLastKnownFlowChainId(), freeIpaDiagnosticsTestDto.getLastKnownFlowId());
+    }
+
+    private WaitResult waitBasedOnLastKnownFlow(FreeIpaClient freeIpaClient, String lastKnownFlowChainId, String lastKnownFlowId) {
+        FlowEndpoint flowEndpoint = freeIpaClient.getFreeIpaClient().getFlowEndpoint();
+        return isFlowRunning(flowEndpoint, lastKnownFlowChainId, lastKnownFlowId);
+    }
+
+    private WaitResult waitBasedOnLastKnownFlow(CloudbreakClient cloudbreakClient, String lastKnownFlowChainId, String lastKnownFlowId) {
         FlowEndpoint flowEndpoint = cloudbreakClient.getCloudbreakClient().flowEndpoint();
-        return isFlowRunning(flowEndpoint, distroXTestDto.getLastKnownFlowChainId(), distroXTestDto.getLastKnownFlowId());
+        return isFlowRunning(flowEndpoint, lastKnownFlowChainId, lastKnownFlowId);
+    }
+
+    private WaitResult waitBasedOnLastKnownFlow(SdxClient sdxClient, String lastKnownFlowChainId, String lastKnownFlowId) {
+        FlowEndpoint flowEndpoint = sdxClient.getSdxClient().flowEndpoint();
+        return isFlowRunning(flowEndpoint, lastKnownFlowChainId, lastKnownFlowId);
     }
 
     private WaitResult isFlowRunning(FlowEndpoint flowEndpoint, String flowChainId, String flowId) {
