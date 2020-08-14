@@ -7,9 +7,11 @@ import static com.sequenceiq.environment.environment.flow.start.EnvStartState.IN
 import static com.sequenceiq.environment.environment.flow.start.EnvStartState.START_DATAHUB_STATE;
 import static com.sequenceiq.environment.environment.flow.start.EnvStartState.START_DATALAKE_STATE;
 import static com.sequenceiq.environment.environment.flow.start.EnvStartState.START_FREEIPA_STATE;
+import static com.sequenceiq.environment.environment.flow.start.EnvStartState.SYNCHRONIZE_USERS_STATE;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.ENV_START_DATAHUB_EVENT;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.ENV_START_DATALAKE_EVENT;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.ENV_START_FREEIPA_EVENT;
+import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.ENV_START_SYNCHRONIZE_USERS_EVENT;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.FAILED_ENV_START_EVENT;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.FINALIZE_ENV_START_EVENT;
 import static com.sequenceiq.environment.environment.flow.start.event.EnvStartStateSelectors.FINISH_ENV_START_EVENT;
@@ -34,7 +36,10 @@ public class EnvStartFlowConfig extends AbstractFlowConfiguration<EnvStartState,
             .from(INIT_STATE).to(START_FREEIPA_STATE)
             .event(ENV_START_FREEIPA_EVENT).defaultFailureEvent()
 
-            .from(START_FREEIPA_STATE).to(START_DATALAKE_STATE)
+            .from(START_FREEIPA_STATE).to(SYNCHRONIZE_USERS_STATE)
+            .event(ENV_START_SYNCHRONIZE_USERS_EVENT).defaultFailureEvent()
+
+            .from(SYNCHRONIZE_USERS_STATE).to(START_DATALAKE_STATE)
             .event(ENV_START_DATALAKE_EVENT).defaultFailureEvent()
 
             .from(START_DATALAKE_STATE).to(START_DATAHUB_STATE)

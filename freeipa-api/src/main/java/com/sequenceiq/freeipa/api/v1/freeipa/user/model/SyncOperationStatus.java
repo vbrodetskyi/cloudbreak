@@ -2,6 +2,7 @@ package com.sequenceiq.freeipa.api.v1.freeipa.user.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sequenceiq.freeipa.api.v1.freeipa.user.doc.UserModelDescriptions;
 
@@ -36,6 +37,7 @@ public class SyncOperationStatus {
     @ApiModelProperty(value = UserModelDescriptions.USERSYNC_ENDTIME)
     private Long endTime;
 
+    @JsonCreator
     public SyncOperationStatus(String operationId, SyncOperationType syncOperationType, SynchronizationStatus status,
             List<SuccessDetails> success, List<FailureDetails> failure,
             String error,

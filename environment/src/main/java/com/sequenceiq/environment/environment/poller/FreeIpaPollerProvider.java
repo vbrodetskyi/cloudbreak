@@ -1,5 +1,6 @@
 package com.sequenceiq.environment.environment.poller;
 
+import java.util.EnumSet;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -14,13 +15,19 @@ import com.sequenceiq.environment.environment.service.freeipa.FreeIpaService;
 import com.sequenceiq.environment.store.EnvironmentInMemoryStateStore;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.Status;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.describe.DescribeFreeIpaResponse;
+import com.sequenceiq.freeipa.api.v1.freeipa.user.model.SyncOperationStatus;
+import com.sequenceiq.freeipa.api.v1.freeipa.user.model.SynchronizationStatus;
 
 @Component
 public class FreeIpaPollerProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeIpaPollerProvider.class);
 
+    private static final EnumSet<SynchronizationStatus> FAILED_SYNCHRONIZATION_STATUSES =
+            EnumSet.of(SynchronizationStatus.FAILED, SynchronizationStatus.REJECTED, SynchronizationStatus.TIMEDOUT);
+
     private final FreeIpaService freeIpaService;
+
 
     public FreeIpaPollerProvider(FreeIpaService freeIpaService) {
         this.freeIpaService = freeIpaService;
@@ -56,6 +63,21 @@ public class FreeIpaPollerProvider {
         };
     }
 
+    public AttemptMaker<Void> syncUsersPoller(Long envId, String envCrn, String operationId) {
+        return () -> {
+            if (PollGroup.CANCELLED.equals(EnvironmentInMemoryStateStore.get(envId))) {
+                LOGGER.info("Freeipa polling cancelled in inmemory store, id: " + envId);
+                return AttemptResults.breakFor("Freeipa polling cancelled in inmemory store, id: " + envId);
+            }
+            SyncOperationStatus freeIpaResponse = freeIpaService.getSyncOperationStatus(envCrn, operationId);
+            if (freeIpaUsersSynchronized(freeIpaResponse)) {
+                return AttemptResults.finishWith(null);
+            } else {
+                return checkSyncStatus(freeIpaResponse);
+            }
+        };
+    }
+
     private AttemptResult<Void> checkStopStatus(DescribeFreeIpaResponse freeIpaResponse) {
         if (Status.STOP_FAILED.equals(freeIpaResponse.getStatus())) {
             LOGGER.error("Freeipa stop failed for '{}' with status {}, reason: {}", freeIpaResponse.getName(), freeIpaResponse.getStatus(),
@@ -76,11 +98,25 @@ public class FreeIpaPollerProvider {
         }
     }
 
+    private AttemptResult<Void> checkSyncStatus(SyncOperationStatus freeIpaResponse) {
+        if (FAILED_SYNCHRONIZATION_STATUSES.contains(freeIpaResponse.getStatus())) {
+            LOGGER.error("FreeIpa user synchronization failed for '{}' with status {}, reason: {}", freeIpaResponse.getOperationId(), freeIpaResponse.getStatus(),
+                    freeIpaResponse.getFailure());
+            return AttemptResults.breakFor("FreeIpa user synchronization failed '" + freeIpaResponse.getOperationId() + "', " + freeIpaResponse.getFailure());
+        } else {
+            return AttemptResults.justContinue();
+        }
+    }
+
     private boolean freeipaStopped(DescribeFreeIpaResponse freeipa) {
         return Status.STOPPED.equals(freeipa.getStatus());
     }
 
     private boolean freeipaAvailable(DescribeFreeIpaResponse freeipa) {
         return Status.AVAILABLE.equals(freeipa.getStatus());
+    }
+
+    private boolean freeIpaUsersSynchronized(SyncOperationStatus freeIpaResponse) {
+        return SynchronizationStatus.COMPLETED.equals(freeIpaResponse.getStatus());
     }
 }
