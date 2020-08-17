@@ -135,7 +135,10 @@ public class GcpNetworkConnector extends AbstractGcpResourceBuilder implements N
         String projectId = GcpStackUtil.getProjectId(credential);
         List<String> vpcCidrs = new ArrayList<>();
         try {
-            com.google.api.services.compute.model.Network gcpNetwork = compute.networks().get(projectId, "").execute();
+            com.google.api.services.compute.model.Network gcpNetwork = compute
+                    .networks()
+                    .get(projectId, GcpStackUtil.getCustomNetworkId(network))
+                    .execute();
             vpcCidrs.add(gcpNetwork.getIPv4Range());
         } catch (IOException e) {
             throw new GcpResourceException("sdfsdfsdfsdfsdf", GCP_NETWORK, "");

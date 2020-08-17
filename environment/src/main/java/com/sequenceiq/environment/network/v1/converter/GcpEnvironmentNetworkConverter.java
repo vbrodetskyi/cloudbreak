@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.sequenceiq.cloudbreak.cloud.gcp.util.GcpStackUtil;
 import com.sequenceiq.cloudbreak.cloud.model.CloudSubnet;
+import com.sequenceiq.cloudbreak.cloud.model.Network;
 import com.sequenceiq.cloudbreak.cloud.model.network.CreatedCloudNetwork;
 import com.sequenceiq.cloudbreak.cloud.model.network.CreatedSubnet;
 import com.sequenceiq.cloudbreak.cloud.model.network.SubnetType;
@@ -115,6 +117,17 @@ public class GcpEnvironmentNetworkConverter extends EnvironmentBaseNetworkConver
 
     private boolean isExistingNetworkSpecified(NetworkDto networkDto) {
         return networkDto.getGcp() != null && networkDto.getGcp().getNetworkId() != null;
+    }
+
+    @Override
+    public Network convertToNetwork(BaseNetwork baseNetwork) {
+        GcpNetwork gcpNetwork = (GcpNetwork) baseNetwork;
+        Map<String, Object> param = new HashMap<>();
+        param.put(GcpStackUtil.SHARED_PROJECT_ID, gcpNetwork.getSharedProjectId());
+        param.put(GcpStackUtil.NETWORK_ID, gcpNetwork.getNetworkId());
+        param.put(GcpStackUtil.NO_PUBLIC_IP, gcpNetwork.getNoPublicIp());
+        param.put(GcpStackUtil.NO_FIREWALL_RULES, gcpNetwork.getNoFirewallRules());
+        return new Network(null, param);
     }
 
     @Override

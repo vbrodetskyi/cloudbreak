@@ -17,7 +17,6 @@ import com.sequenceiq.cloudbreak.common.mappable.CloudPlatform;
 import com.sequenceiq.cloudbreak.validation.ValidationResult;
 import com.sequenceiq.environment.environment.dto.EnvironmentDto;
 import com.sequenceiq.environment.environment.validation.network.EnvironmentNetworkValidator;
-import com.sequenceiq.environment.environment.validation.network.azure.AzureEnvironmentNetworkValidator;
 import com.sequenceiq.environment.network.CloudNetworkService;
 import com.sequenceiq.environment.network.dto.GcpParams;
 import com.sequenceiq.environment.network.dto.NetworkDto;
@@ -25,7 +24,7 @@ import com.sequenceiq.environment.network.dto.NetworkDto;
 @Component
 public class GcpEnvironmentNetworkValidator implements EnvironmentNetworkValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AzureEnvironmentNetworkValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GcpEnvironmentNetworkValidator.class);
 
     private final CloudNetworkService cloudNetworkService;
 
@@ -87,7 +86,7 @@ public class GcpEnvironmentNetworkValidator implements EnvironmentNetworkValidat
 
     private void checkExistingNetworkParamsProvidedWhenSubnetsPresent(NetworkDto networkDto, ValidationResult.ValidationResultBuilder resultBuilder) {
         if (!networkDto.getSubnetIds().isEmpty()
-                && StringUtils.isEmpty(networkDto.getAzure().getNetworkId())) {
+                && StringUtils.isEmpty(networkDto.getGcp().getNetworkId())) {
             String message =
                     String.format("If %s subnet ids were provided then network id have to be specified, too.", GCP.name());
             LOGGER.info(message);

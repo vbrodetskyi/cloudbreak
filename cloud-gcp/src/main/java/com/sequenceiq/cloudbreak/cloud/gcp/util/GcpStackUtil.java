@@ -68,6 +68,10 @@ public final class GcpStackUtil {
 
     public static final String CREDENTIAL_JSON = "credentialJson";
 
+    public static final String NO_PUBLIC_IP = "noPublicIp";
+
+    public static final String NO_FIREWALL_RULES = "noFirewallRules";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GcpStackUtil.class);
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -81,10 +85,6 @@ public final class GcpStackUtil {
     private static final int FINISHED = 100;
 
     private static final int PRIVATE_ID_PART = 2;
-
-    private static final String NO_PUBLIC_IP = "noPublicIp";
-
-    private static final String NO_FIREWALL_RULES = "noFirewallRules";
 
     private GcpStackUtil() {
     }
